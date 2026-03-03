@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#0C1A0E">
-  <title>RationPro — Vaches Allaitantes</title>
+  <title>RationPro</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐄</text></svg>">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -226,33 +226,6 @@ function RationProApp() {
   const [mdpErr, setMdpErr] = useState(false);
   const MDP_APP = "VETHORIZONS";
 
-  if (!auth) {
-    return (
-      <div style={{minHeight:"100vh",background:"#0C1A0E",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"Outfit,sans-serif",padding:20}}>
-        <div style={{background:"#132117",border:"1px solid rgba(76,175,80,0.15)",borderRadius:20,padding:30,maxWidth:360,width:"100%",textAlign:"center"}}>
-          <div style={{fontSize:48,marginBottom:8}}>🐄</div>
-          <h1 style={{color:"#E8F5E9",fontSize:22,fontWeight:800,margin:"0 0 4px"}}>RationPro</h1>
-          <p style={{color:"#5C7C5E",fontSize:11,marginBottom:24}}>Rationnement Vaches Allaitantes</p>
-          <input
-            type="password"
-            value={mdp}
-            onChange={e=>{setMdp(e.target.value);setMdpErr(false);}}
-            onKeyDown={e=>{if(e.key==="Enter"){if(mdp===MDP_APP)setAuth(true);else setMdpErr(true);}}}
-            placeholder="Mot de passe"
-            style={{background:"#1A2E1F",border:`1.5px solid ${mdpErr?"#EF5350":"rgba(76,175,80,0.3)"}`,borderRadius:12,color:"#E8F5E9",padding:"14px 16px",fontSize:14,width:"100%",outline:"none",boxSizing:"border-box",fontFamily:"Outfit",textAlign:"center",letterSpacing:2}}
-            autoFocus
-          />
-          {mdpErr && <p style={{color:"#EF5350",fontSize:11,marginTop:8,fontWeight:600}}>Mot de passe incorrect</p>}
-          <button
-            onClick={()=>{if(mdp===MDP_APP)setAuth(true);else setMdpErr(true);}}
-            style={{marginTop:14,padding:"13px 20px",borderRadius:12,border:"none",background:"#4CAF50",color:"#fff",fontWeight:700,fontSize:14,cursor:"pointer",fontFamily:"Outfit",width:"100%"}}
-          >Accéder</button>
-          <p style={{color:"#5C7C5E",fontSize:9,marginTop:16}}>VetHorizons · INRA 2018</p>
-        </div>
-      </div>
-    );
-  }
-
   const [tab, setTab] = useState("ration");
   const [moisGest, setMoisGest] = useState(9);
   const [poids, setPoids] = useState(650);
@@ -371,6 +344,33 @@ function RationProApp() {
     tabBar:{position:"fixed",bottom:0,left:0,right:0,background:C.bgCard,borderTop:`1px solid ${C.border}`,display:"flex",zIndex:100,maxWidth:480,margin:"0 auto"},
     tabBtn:a=>({flex:1,padding:"8px 0 10px",border:"none",background:"transparent",color:a?C.green:C.textDim,cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:2,fontFamily:"Outfit",fontSize:9,fontWeight:a?700:500,borderTop:a?`3px solid ${C.green}`:"3px solid transparent"}),
   };
+
+  if (!auth) {
+    return (
+      <div style={{minHeight:"100vh",background:"#0C1A0E",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"Outfit,sans-serif",padding:20}}>
+        <div style={{background:"#132117",border:"1px solid rgba(76,175,80,0.15)",borderRadius:20,padding:30,maxWidth:360,width:"100%",textAlign:"center"}}>
+          <div style={{fontSize:48,marginBottom:8}}>🐄</div>
+          <h1 style={{color:"#E8F5E9",fontSize:22,fontWeight:800,margin:"0 0 4px"}}>RationPro</h1>
+          <p style={{color:"#5C7C5E",fontSize:11,marginBottom:24}}>Rationnement Vaches Allaitantes</p>
+          <input
+            type="password"
+            value={mdp}
+            onChange={e=>{setMdp(e.target.value);setMdpErr(false);}}
+            onKeyDown={e=>{if(e.key==="Enter"){if(mdp===MDP_APP)setAuth(true);else setMdpErr(true);}}}
+            placeholder="Mot de passe"
+            style={{background:"#1A2E1F",border:`1.5px solid ${mdpErr?"#EF5350":"rgba(76,175,80,0.3)"}`,borderRadius:12,color:"#E8F5E9",padding:"14px 16px",fontSize:14,width:"100%",outline:"none",boxSizing:"border-box",fontFamily:"Outfit",textAlign:"center",letterSpacing:2}}
+            autoFocus
+          />
+          {mdpErr && <p style={{color:"#EF5350",fontSize:11,marginTop:8,fontWeight:600}}>Mot de passe incorrect</p>}
+          <button
+            onClick={()=>{if(mdp===MDP_APP)setAuth(true);else setMdpErr(true);}}
+            style={{marginTop:14,padding:"13px 20px",borderRadius:12,border:"none",background:"#4CAF50",color:"#fff",fontWeight:700,fontSize:14,cursor:"pointer",fontFamily:"Outfit",width:"100%"}}
+          >Accéder</button>
+          <p style={{color:"#5C7C5E",fontSize:9,marginTop:16}}>Accès réservé</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={S.app}>
