@@ -29,14 +29,15 @@
   <script type="text/babel">
     const { useState, useMemo, useRef, useEffect } = React;
 
-    // Polyfill window.storage pour utilisation hors artifact
     if (!window.storage) {
-      const _store = {};
+      const _s = {};
+      try { const d = localStorage.getItem("rationpro_data"); if(d) Object.assign(_s, JSON.parse(d)); } catch(e) {}
+      const _save = () => { try { localStorage.setItem("rationpro_data", JSON.stringify(_s)); } catch(e) {} };
       window.storage = {
-        get: async (k) => { if (_store[k] !== undefined) return {key:k, value:_store[k]}; throw new Error("not found"); },
-        set: async (k, v) => { _store[k] = v; return {key:k, value:v}; },
-        delete: async (k) => { delete _store[k]; return {key:k, deleted:true}; },
-        list: async (prefix) => { return {keys: Object.keys(_store).filter(k => !prefix || k.startsWith(prefix))}; }
+        get: async (k) => { if (_s[k] !== undefined) return {key:k, value:_s[k]}; throw new Error("not found"); },
+        set: async (k, v) => { _s[k] = v; _save(); return {key:k, value:v}; },
+        delete: async (k) => { delete _s[k]; _save(); return {key:k, deleted:true}; },
+        list: async (prefix) => { return {keys: Object.keys(_s).filter(k => !prefix || k.startsWith(prefix))}; }
       };
     }
 
@@ -220,6 +221,38 @@ const BilanRow = ({label,icon,apport,besoin,unit}) => {
 // APP
 // ═══════════════════════════════════════════════════════
 function RationProApp() {
+  const [auth, setAuth] = useState(false);
+  const [mdp, setMdp] = useState("");
+  const [mdpErr, setMdpErr] = useState(false);
+  const MDP_APP = "VETHORIZONS";
+
+  if (!auth) {
+    return (
+      <div style={{minHeight:"100vh",background:"#0C1A0E",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"Outfit,sans-serif",padding:20}}>
+        <div style={{background:"#132117",border:"1px solid rgba(76,175,80,0.15)",borderRadius:20,padding:30,maxWidth:360,width:"100%",textAlign:"center"}}>
+          <div style={{fontSize:48,marginBottom:8}}>🐄</div>
+          <h1 style={{color:"#E8F5E9",fontSize:22,fontWeight:800,margin:"0 0 4px"}}>RationPro</h1>
+          <p style={{color:"#5C7C5E",fontSize:11,marginBottom:24}}>Rationnement Vaches Allaitantes</p>
+          <input
+            type="password"
+            value={mdp}
+            onChange={e=>{setMdp(e.target.value);setMdpErr(false);}}
+            onKeyDown={e=>{if(e.key==="Enter"){if(mdp===MDP_APP)setAuth(true);else setMdpErr(true);}}}
+            placeholder="Mot de passe"
+            style={{background:"#1A2E1F",border:`1.5px solid ${mdpErr?"#EF5350":"rgba(76,175,80,0.3)"}`,borderRadius:12,color:"#E8F5E9",padding:"14px 16px",fontSize:14,width:"100%",outline:"none",boxSizing:"border-box",fontFamily:"Outfit",textAlign:"center",letterSpacing:2}}
+            autoFocus
+          />
+          {mdpErr && <p style={{color:"#EF5350",fontSize:11,marginTop:8,fontWeight:600}}>Mot de passe incorrect</p>}
+          <button
+            onClick={()=>{if(mdp===MDP_APP)setAuth(true);else setMdpErr(true);}}
+            style={{marginTop:14,padding:"13px 20px",borderRadius:12,border:"none",background:"#4CAF50",color:"#fff",fontWeight:700,fontSize:14,cursor:"pointer",fontFamily:"Outfit",width:"100%"}}
+          >Accéder</button>
+          <p style={{color:"#5C7C5E",fontSize:9,marginTop:16}}>VetHorizons · INRA 2018</p>
+        </div>
+      </div>
+    );
+  }
+
   const [tab, setTab] = useState("ration");
   const [moisGest, setMoisGest] = useState(9);
   const [poids, setPoids] = useState(650);
