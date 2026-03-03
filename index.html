@@ -252,15 +252,25 @@ function RationProApp() {
   const [lotActif, setLotActif] = useState(1);
   const [showAddLot, setShowAddLot] = useState(false);
 
-  // Persistance des aliments modifiés
+  // Persistance complète (aliments, éleveur, lots, rations, paramètres)
   const [storageReady, setStorageReady] = useState(false);
   useEffect(() => {
     (async () => {
       try {
-        const res = await window.storage.get("aliments_custom");
+        const res = await window.storage.get("rationpro_all");
         if (res && res.value) {
-          const saved = JSON.parse(res.value);
-          if (Array.isArray(saved) && saved.length > 0) setAliments(saved);
+          const d = JSON.parse(res.value);
+          if (d.aliments && Array.isArray(d.aliments) && d.aliments.length > 0) setAliments(d.aliments);
+          if (d.eleveur) setEleveur(d.eleveur);
+          if (d.lots && Array.isArray(d.lots) && d.lots.length > 0) setLots(d.lots);
+          if (d.lotActif) setLotActif(d.lotActif);
+          if (d.savedRations && Array.isArray(d.savedRations)) setSavedRations(d.savedRations);
+          if (d.lignes && Array.isArray(d.lignes)) setLignes(d.lignes);
+          if (d.moisGest !== undefined) setMoisGest(d.moisGest);
+          if (d.poids !== undefined) setPoids(d.poids);
+          if (d.nec !== undefined) setNec(d.nec);
+          if (d.prodLait !== undefined) setProdLait(d.prodLait);
+          if (d.poidsVeau !== undefined) setPoidsVeau(d.poidsVeau);
         }
       } catch(e) { /* pas de données sauvegardées */ }
       setStorageReady(true);
@@ -270,10 +280,13 @@ function RationProApp() {
     if (!storageReady) return;
     (async () => {
       try {
-        await window.storage.set("aliments_custom", JSON.stringify(aliments));
+        await window.storage.set("rationpro_all", JSON.stringify({
+          aliments, eleveur, lots, lotActif, savedRations, lignes,
+          moisGest, poids, nec, prodLait, poidsVeau
+        }));
       } catch(e) { /* storage non dispo */ }
     })();
-  }, [aliments, storageReady]);
+  }, [aliments, eleveur, lots, lotActif, savedRations, lignes, moisGest, poids, nec, prodLait, poidsVeau, storageReady]);
 
   const besoins = useMemo(() => calculBesoins(moisGest, poids, prodLait, poidsVeau), [moisGest, poids, prodLait, poidsVeau]);
   const rationCalc = useMemo(() => {
@@ -441,7 +454,10 @@ function RationProApp() {
         {/* ═══ ÉLEVEUR ═══ */}
         {tab === "eleveur" && (
           <>
-            <h2 style={{margin:"0 0 10px",fontSize:15,fontWeight:700}}>👤 Éleveur</h2>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+              <h2 style={{margin:0,fontSize:15,fontWeight:700}}>👤 Éleveur</h2>
+              <button onClick={async ()=>{if(confirm("Réinitialiser toutes les données ? (éleveur, lots, rations, aliments)")){try{await window.storage.delete("rationpro_all")}catch(e){}setAliments(JSON.parse(JSON.stringify(ALIMENTS_DEFAULT)));setEleveur({nom:"",exploitation:"",adresse:"",tel:"",notes:""});setLots([{id:1,nom:"Lot 1",nbAnimaux:30,race:"Charolaise",notes:""}]);setLotActif(1);setSavedRations([]);setLignes(DEFAULT_RATION);setMoisGest(9);setPoids(650);setNec(3);setProdLait(8);setPoidsVeau(45);}}} style={{padding:"6px 12px",borderRadius:8,border:"none",background:C.redFaint,color:C.red,fontSize:10,fontWeight:700,cursor:"pointer",fontFamily:"Outfit"}}>🗑 Réinitialiser</button>
+            </div>
             <div style={S.card}>
               <Field label="Nom de l'éleveur" value={eleveur.nom} onChange={v=>setEleveur(p=>({...p,nom:v}))} placeholder="Ex: GAEC Dupont"/>
               <Field label="Exploitation" value={eleveur.exploitation} onChange={v=>setEleveur(p=>({...p,exploitation:v}))} placeholder="Nom de l'exploitation"/>
